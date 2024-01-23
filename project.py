@@ -3,7 +3,40 @@ import json
 from geopy.geocoders import Nominatim
 from geopy.distance import great_circle
 from tabulate import tabulate
+from tkinter import *
+from tkinter import ttk
 
+class DisplayWindow:
+    def __init__(self, root):
+
+        root.title("Closest Points")
+
+        mainframe = ttk.Frame(root, padding="3 3 12 12")
+        mainframe.grid(column=0, row=0, sticky=(W, E, N, S))
+        root.columnconfigure(0, weight=1)
+        root.rowconfigure(0, weight=1)
+
+        # Labels
+        loc_label = ttk.Label(mainframe, text="Location: ")
+        loc_label.grid(column=1, row=1, sticky=(W, E))
+
+        type_label = ttk.Label(mainframe, text="Type of establishment: ")
+        type_label.grid(column=1, row=2, sticky=(W, E))
+
+        # Entries
+        loc_entry = ttk.Entry(mainframe, width=60,) # needs textvariable= to location
+        loc_entry.grid(column=2, row=1, sticky=(W, E))
+
+        type_entry = ttk.Entry(mainframe, width=60) #needs textvariable= to type of establishment
+        type_entry.grid(column=2, row=2, sticky=(W, E))
+
+        # Buttons
+        search_button = ttk.Button(mainframe, text="Search") # needs command= get_places
+        search_button.grid(column=2, row=3, sticky=(W, E))
+
+        # Output label
+        result_label = ttk.Label(mainframe, text="Here goes the result") # needs change text= to textvariable= output
+        result_label.grid(column=2, row=4, sticky=(W, E, S, N))
 
 def main():
     print(process_json(get_places(lati_longi, get_type_establishment())))
@@ -35,7 +68,7 @@ def get_lati_longi():
     return f"{location.latitude},{location.longitude}"
 
 
-lati_longi = get_lati_longi()
+#lati_longi = get_lati_longi()
 
 
 def get_type_establishment():
@@ -80,5 +113,7 @@ def process_json(placesjson):
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
 
 
-if __name__ == "__main__":
-    main()
+
+root = Tk()
+DisplayWindow(root)
+root.mainloop()
