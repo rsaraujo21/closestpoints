@@ -5,6 +5,7 @@ from geopy.distance import great_circle
 from tabulate import tabulate
 from tkinter import *
 from tkinter import ttk
+from functools import partial
 
 
 class DisplayWindow:
@@ -42,17 +43,24 @@ class DisplayWindow:
 
         # Buttons
         search_button = ttk.Button(
-            mainframe, text="Search", command=lambda: get_places(self)
+            mainframe, text="Search", command=partial(get_places, self)
         )
         search_button.grid(column=2, row=3, sticky=(W))
 
         # Output label
-        result_label = ttk.Label(mainframe, textvariable=self.output_label)
-        result_label.grid(column=2, row=4, sticky=(W, E, S, N))
+        result_label = ttk.Label(
+            mainframe, textvariable=self.output_label, font=("Consolas", 10)
+        )
+        result_label.grid(column=2, row=4, sticky=(W, S, N))
 
-        # Padding
-        for child in mainframe.winfo_children():
-            child.grid_configure(padx=5, pady=5)
+        empty_label = ttk.Label(mainframe, text="")
+        empty_label.grid(column=4, row=4, sticky=(E))
+
+        # Focus
+        loc_entry.focus()
+
+        # Key bind
+        root.bind("<Return>", partial(get_places, self))
 
     def get_lati_longi(self):
         getaddress = str(self.name_address.get())
@@ -62,7 +70,7 @@ class DisplayWindow:
         return self.lati_longi
 
 
-def get_places(self):
+def get_places(self, arg):
     location = self.get_lati_longi()
     keyword = self.type_establishment.get()
 
