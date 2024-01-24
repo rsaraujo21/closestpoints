@@ -24,25 +24,34 @@ class DisplayWindow:
         type_label.grid(column=1, row=2, sticky=(W, E))
 
         # Entries
-        loc_entry = ttk.Entry(mainframe, width=60,) # needs textvariable= to location
+        loc_entry = ttk.Entry(mainframe, width=60, textvariable=name_address) # needs textvariable= to location
         loc_entry.grid(column=2, row=1, sticky=(W, E))
 
-        type_entry = ttk.Entry(mainframe, width=60) #needs textvariable= to type of establishment
+        type_entry = ttk.Entry(mainframe, width=60, textvariable=type_establishment) #needs textvariable= to type of establishment
         type_entry.grid(column=2, row=2, sticky=(W, E))
 
         # Buttons
-        search_button = ttk.Button(mainframe, text="Search") # needs command= get_places
+        search_button = ttk.Button(mainframe, text="Search", command=get_places) # needs command= get_places
         search_button.grid(column=2, row=3, sticky=(W, E))
 
         # Output label
-        result_label = ttk.Label(mainframe, text="Here goes the result") # needs change text= to textvariable= output
+        result_label = ttk.Label(mainframe, textvariable=) # needs change text= to textvariable= output
         result_label.grid(column=2, row=4, sticky=(W, E, S, N))
 
-def main():
-    print(process_json(get_places(lati_longi, get_type_establishment())))
+
+name_address = StringVar()
+type_establishment = StringVar()
+output_label = StringVar()
 
 
-def get_places(location, keyword):
+
+
+
+def get_places(args):
+
+    location = get_lati_longi(name_address.get())
+    keyword = type_establishment.get()
+
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"  # google places api
     params = {
         "location": location,  # format = "latitude,longitude"
@@ -54,25 +63,16 @@ def get_places(location, keyword):
     places = response.json()[
         "results"
     ]  # get just the list ["result"] that comes inside the dict api return
-    return places[:10]  # places == list of dicts/places, cuts in the 10th place
+    places = places[:10]  # places == list of dicts/places, cuts in the 10th place
+    places = process_json(places)
 
-
-def get_lati_longi():
-    name_address = input(
-        "Location:"
-    )  # the address can be as specific as desired, just a city or even a specific place
+def get_lati_longi(name_address):
     geolocator = Nominatim(user_agent="closestpointscs50p")  # name of the project
     location = geolocator.geocode(
         name_address
     )  # create a location object with lati,longi,address, and the raw request
     return f"{location.latitude},{location.longitude}"
 
-
-#lati_longi = get_lati_longi()
-
-
-def get_type_establishment():
-    return input("Type of establishment:")
 
 
 def process_json(placesjson):
