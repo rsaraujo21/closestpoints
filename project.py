@@ -32,33 +32,34 @@ class DisplayWindow:
         type_label.grid(column=1, row=2, sticky=(W, E))
 
         # Entries
-        loc_entry = ttk.Entry(
-            mainframe, width=60, textvariable=self.name_address
-        ) 
-        loc_entry.grid(column=2, row=1, sticky=(W, E))
+        loc_entry = ttk.Entry(mainframe, width=60, textvariable=self.name_address)
+        loc_entry.grid(column=2, row=1, sticky=(W))
 
         type_entry = ttk.Entry(
             mainframe, width=60, textvariable=self.type_establishment
-        )  
-        type_entry.grid(column=2, row=2, sticky=(W, E))
+        )
+        type_entry.grid(column=2, row=2, sticky=(W))
 
         # Buttons
         search_button = ttk.Button(
             mainframe, text="Search", command=lambda: get_places(self)
-        )  
-        search_button.grid(column=2, row=3, sticky=(W, E))
+        )
+        search_button.grid(column=2, row=3, sticky=(W))
 
         # Output label
-        result_label = ttk.Label(
-            mainframe, textvariable=self.output_label
-        )  
+        result_label = ttk.Label(mainframe, textvariable=self.output_label)
         result_label.grid(column=2, row=4, sticky=(W, E, S, N))
 
+        # Padding
+        for child in mainframe.winfo_children():
+            child.grid_configure(padx=5, pady=5)
+
     def get_lati_longi(self):
-        name_address = self.name_address.get()
+        getaddress = str(self.name_address.get())
         geolocator = Nominatim(user_agent="closestpointscs50p")  # name of the project
-        location = geolocator.geocode(name_address)
+        location = geolocator.geocode(getaddress)
         self.lati_longi = f"{location.latitude},{location.longitude}"
+        return self.lati_longi
 
 
 def get_places(self):
