@@ -6,11 +6,19 @@ from tabulate import tabulate
 from tkinter import *
 from tkinter import ttk
 
+
 class DisplayWindow:
     def __init__(self, root):
-
+        self.root = root
         root.title("Closest Points")
 
+        # Variables
+        self.name_address = StringVar()
+        self.type_establishment = StringVar()
+        self.output_label = StringVar()
+        self.lati_longi = None
+
+        # Creating super/father frame
         mainframe = ttk.Frame(root, padding="3 3 12 12")
         mainframe.grid(column=0, row=0, sticky=(W, E, N, S))
         root.columnconfigure(0, weight=1)
@@ -24,33 +32,38 @@ class DisplayWindow:
         type_label.grid(column=1, row=2, sticky=(W, E))
 
         # Entries
-        loc_entry = ttk.Entry(mainframe, width=60, textvariable=name_address) # needs textvariable= to location
+        loc_entry = ttk.Entry(
+            mainframe, width=60, textvariable=self.name_address
+        ) 
         loc_entry.grid(column=2, row=1, sticky=(W, E))
 
-        type_entry = ttk.Entry(mainframe, width=60, textvariable=type_establishment) #needs textvariable= to type of establishment
+        type_entry = ttk.Entry(
+            mainframe, width=60, textvariable=self.type_establishment
+        )  
         type_entry.grid(column=2, row=2, sticky=(W, E))
 
         # Buttons
-        search_button = ttk.Button(mainframe, text="Search", command=get_places) # needs command= get_places
+        search_button = ttk.Button(
+            mainframe, text="Search", command=lambda: get_places(self)
+        )  
         search_button.grid(column=2, row=3, sticky=(W, E))
 
         # Output label
-        result_label = ttk.Label(mainframe, textvariable=) # needs change text= to textvariable= output
+        result_label = ttk.Label(
+            mainframe, textvariable=self.output_label
+        )  
         result_label.grid(column=2, row=4, sticky=(W, E, S, N))
 
-
-name_address = StringVar()
-type_establishment = StringVar()
-output_label = StringVar()
-
-
-
+    def get_lati_longi(self):
+        name_address = self.name_address.get()
+        geolocator = Nominatim(user_agent="closestpointscs50p")  # name of the project
+        location = geolocator.geocode(name_address)
+        self.lati_longi = f"{location.latitude},{location.longitude}"
 
 
-def get_places(args):
-
-    location = get_lati_longi(name_address.get())
-    keyword = type_establishment.get()
+def get_places(self):
+    location = self.get_lati_longi()
+    keyword = self.type_establishment.get()
 
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"  # google places api
     params = {
@@ -64,18 +77,11 @@ def get_places(args):
         "results"
     ]  # get just the list ["result"] that comes inside the dict api return
     places = places[:10]  # places == list of dicts/places, cuts in the 10th place
-    places = process_json(places)
-
-def get_lati_longi(name_address):
-    geolocator = Nominatim(user_agent="closestpointscs50p")  # name of the project
-    location = geolocator.geocode(
-        name_address
-    )  # create a location object with lati,longi,address, and the raw request
-    return f"{location.latitude},{location.longitude}"
+    places = process_json(self, places)
+    self.output_label.set(places)
 
 
-
-def process_json(placesjson):
+def process_json(self, placesjson):
     list_places = []  # list that the places dicts will be stored
     for place in placesjson:
         status = place.get("opening_hours", {}).get(
@@ -89,11 +95,11 @@ def process_json(placesjson):
             else "Not Available"
         )
 
-        user_location = lati_longi
+        user_location = self.lati_longi
         place_location = place.get("geometry").get("location")
         place_location = f"{place_location['lat']},{place_location['lng']}"
         distance = great_circle(
-            lati_longi, place_location
+            user_location, place_location
         ).km  # calc the distance using the lat/lon, of the two points with great_circle
         if distance < 1:
             distance = f"{distance * 1000:.0f}m"
@@ -111,7 +117,6 @@ def process_json(placesjson):
             }
         )
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
-
 
 
 root = Tk()
