@@ -128,6 +128,10 @@ def process_json(self, placesjson):
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
 
 
+
+# add the copy to a pdf/csv file
+
+
 root = Tk()
 DisplayWindow(root)
 root.mainloop()
