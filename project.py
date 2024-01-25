@@ -128,8 +128,9 @@ def process_json(self, placesjson):
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
 
 
+def output_to_file(self):
+    output = self.output_label.get()
 
-# add the copy to a pdf/csv file
 
 
 root = Tk()
