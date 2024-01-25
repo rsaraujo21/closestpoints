@@ -6,6 +6,7 @@ from tabulate import tabulate
 from tkinter import *
 from tkinter import ttk
 from functools import partial
+import uuid
 
 
 class DisplayWindow:
@@ -47,11 +48,16 @@ class DisplayWindow:
         )
         search_button.grid(column=2, row=3, sticky=(W))
 
+        save_to_file_button = ttk.Button(
+            mainframe, text="Save", command=self.output_to_file
+        )
+        save_to_file_button.grid(column=2, row=4, sticky=(W))
+
         # Output label
         result_label = ttk.Label(
             mainframe, textvariable=self.output_label, font=("Consolas", 10)
         )
-        result_label.grid(column=2, row=4, sticky=(W, S, N))
+        result_label.grid(column=2, row=5, sticky=(W, S, N))
 
         empty_label = ttk.Label(mainframe, text="")
         empty_label.grid(column=4, row=4, sticky=(E))
@@ -69,8 +75,13 @@ class DisplayWindow:
         self.lati_longi = f"{location.latitude},{location.longitude}"
         return self.lati_longi
 
+    def output_to_file(self, event=None):
+        output = self.output_label.get()
+        with open(str(uuid.uuid4()) + ".txt", "w", encoding="utf-8") as file:
+            file.write(output)
 
-def get_places(self, arg):
+
+def get_places(self, event=None):
     location = self.get_lati_longi()
     keyword = self.type_establishment.get()
 
@@ -126,11 +137,6 @@ def process_json(self, placesjson):
             }
         )
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
-
-
-def output_to_file(self):
-    output = self.output_label.get()
-
 
 
 root = Tk()
