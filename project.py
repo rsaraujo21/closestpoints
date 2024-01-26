@@ -8,10 +8,10 @@ from tkinter import *
 from tkinter import ttk
 from functools import partial
 
+
 # Creates a tkinter gui
 class DisplayWindow:
     def __init__(self, root):
-
         self.root = root
         root.title("Closest Points")
 
@@ -19,6 +19,7 @@ class DisplayWindow:
         self.name_address = StringVar()
         self.type_establishment = StringVar()
         self.output_label = StringVar()
+        self.error_label = StringVar()
         self.lati_longi = None
 
         # Mainframe
@@ -38,6 +39,9 @@ class DisplayWindow:
             mainframe, textvariable=self.output_label, font=("Consolas", 10)
         )
         result_label.grid(column=2, row=5, sticky=(W, S, N))
+
+        error_label = ttk.Label(mainframe, textvariable=self.error_label, font=("Consolas", 10))
+        error_label.grid(column=1, row=3, sticky=(W, E))
 
         empty_label = ttk.Label(mainframe, text="")
         empty_label.grid(column=4, row=4, sticky=(E))
@@ -72,56 +76,67 @@ class DisplayWindow:
     def get_lati_longi(self):
         getaddress = str(self.name_address.get())
         geolocator = Nominatim(user_agent="closestpointscs50p")
+        # Invalid location
         try:
             location = geolocator.geocode(getaddress)
             self.lati_longi = f"{location.latitude},{location.longitude}"
         except AttributeError as Error:
-            print("Invalid location.")
+            self.error_label.set("Invalid location.")
         return self.lati_longi
 
     # Save the search result to a new txt file
     def output_to_file(self, event=None):
         output = self.output_label.get()
+        # Error when saving output
         try:
             with open(str(uuid.uuid4()) + ".txt", "w", encoding="utf-8") as file:
                 file.write(output)
         except IOError:
-            print("Error: Unable to save file.")
+            self.error_label.set("Error: Unable to save file.")
 
+
+# Does an api request based on the object attributes, calls process_json to return the formatted output
 def get_places(self, event=None):
+    self.error_label.set("") # Clear the error label before each search
     location = self.get_lati_longi()
     keyword = self.type_establishment.get()
 
-    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"  # google places api
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
-        "location": location,  # format = "latitude,longitude"
-        "rankby": "distance",  # rank the api return by the distance from the input location
-        "keyword": keyword,  # keyword to search for, might be esblish name or type
-        "key": "AIzaSyAVU5xnjIzrb78Tqw9UuvY_fWP4xHiAAk4",  # needs to hide this key before uploading with dotenv//env variable
+        "location": location,
+        "rankby": "distance",
+        "keyword": keyword,
+        "key": "AIzaSyAVU5xnjIzrb78Tqw9UuvY_fWP4xHiAAk4",  # TEMP API KEY// DEACTIVATE LATER #################################################
     }
+    # ConnectionError/Timeout/TooManyRedirects
     try:
         response = requests.get(url, params=params)
     except requests.exceptions.RequestException as Error:
-        print("Error: Failed API request.")
+        self.error_label.set("Error: Failed API request.")
 
+    # API request succeed but no results found
     try:
-        places = response.json()["results"]  # get just the list ["result"] that comes inside the dict api return
+        places = response.json()["results"]
         if places == []:
             raise ValueError("No results found.")
     except ValueError as Error:
-        print(Error)
+        self.error_label.set(Error)
 
-    places = places[:10]  # places == list of dicts/places, cuts in the 10th place
-    places = process_json(self, places)
-    self.output_label.set(places)
+    places = places[:10]  # Limits the output to 10 places from 20
+    places = process_json(
+        self, places
+    )  # Calls the process_json function to format the output
+    self.output_label.set(places)  # Set the output in the textvariable label
+    self.name_address.set("")
+    self.type_establishment.set("")
 
 
+# Receives the json file, get the desired values, calls calc_distance to get distance, returns formatted data
 def process_json(self, placesjson):
-    list_places = []  # list that the places dicts will be stored
+    list_places = []
     for place in placesjson:
-        status = place.get("opening_hours", {}).get(
-            "open_now"
-        )  # dealing with the opening_hours key and value(dict)
+        # Dealing with opening_hours optional key and value
+        status = place.get("opening_hours", {}).get("open_now")
         status = (
             "Open"
             if status is True
@@ -130,17 +145,11 @@ def process_json(self, placesjson):
             else "Not Available"
         )
 
+        # Getting distance between two points with calc_distance
         user_location = self.lati_longi
         place_location = place.get("geometry").get("location")
         place_location = f"{place_location['lat']},{place_location['lng']}"
-
-        distance = great_circle(
-            user_location, place_location
-        ).km  # calc the distance using the lat/lon, of the two points with great_circle
-        if distance < 1:
-            distance = f"{distance * 1000:.0f}m"
-        else:
-            distance = f"{distance:.1f}km"
+        distance = calc_distance(user_location, place_location)
 
         list_places.append(
             {
@@ -152,7 +161,18 @@ def process_json(self, placesjson):
                 "Address": place.get("vicinity", "Not Available"),
             }
         )
+    # Format the list of dicts/places in a table
     return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
+
+
+# Uses geopy/great_circle to get the (rough)distance between two points
+def calc_distance(user_location, place_location):
+    distance = great_circle(user_location, place_location).km
+    if distance < 1:
+        distance = f"{distance * 1000:.0f}m"
+    else:
+        distance = f"{distance:.1f}km"
+    return distance
 
 
 root = Tk()
