@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import uuid
@@ -7,6 +8,12 @@ from tabulate import tabulate
 from tkinter import *
 from tkinter import ttk
 from functools import partial
+from dotenv import find_dotenv, load_dotenv
+
+# Get the places api key from the env file
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+API_KEY = os.getenv("API_KEY")
 
 
 # Creates a tkinter gui
@@ -106,7 +113,7 @@ def get_places(self, event=None):
         "location": location,
         "rankby": "distance",
         "keyword": keyword,
-        "key": "AIzaSyAVU5xnjIzrb78Tqw9UuvY_fWP4xHiAAk4",  # TEMP API KEY// DEACTIVATE LATER #################################################
+        "key": API_KEY, 
     }
     # ConnectionError/Timeout/TooManyRedirects
     try:
