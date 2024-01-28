@@ -187,7 +187,7 @@ def output_to_file(self, event=None):
     except IOError:
         self.error_label.set("Error: Unable to save file.")
 
-
-root = Tk()
-DisplayWindow(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = Tk()
+    DisplayWindow(root)
+    root.mainloop()
