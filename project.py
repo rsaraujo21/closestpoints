@@ -36,10 +36,12 @@ class DisplayWindow:
         root.rowconfigure(0, weight=1)
 
         # Labels
-        loc_label = ttk.Label(mainframe, text="Location: ")
+        loc_label = ttk.Label(mainframe, text="Location: ", font=("Consolas", 10))
         loc_label.grid(column=1, row=1, sticky=(W, E))
 
-        type_label = ttk.Label(mainframe, text="Type of establishment: ")
+        type_label = ttk.Label(
+            mainframe, text="Type of establishment: ", font=("Consolas", 10)
+        )
         type_label.grid(column=1, row=2, sticky=(W, E))
 
         result_label = ttk.Label(
@@ -47,7 +49,9 @@ class DisplayWindow:
         )
         result_label.grid(column=2, row=5, sticky=(W, S, N))
 
-        error_label = ttk.Label(mainframe, textvariable=self.error_label, font=("Consolas", 10))
+        error_label = ttk.Label(
+            mainframe, textvariable=self.error_label, font=("Consolas", 10)
+        )
         error_label.grid(column=1, row=3, sticky=(W, E))
 
         empty_label = ttk.Label(mainframe, text="")
@@ -69,7 +73,7 @@ class DisplayWindow:
         search_button.grid(column=2, row=3, sticky=(W))
 
         save_to_file_button = ttk.Button(
-            mainframe, text="Save", command=self.output_to_file
+            mainframe, text="Save", command=partial(output_to_file, self)
         )
         save_to_file_button.grid(column=2, row=4, sticky=(W))
 
@@ -79,33 +83,11 @@ class DisplayWindow:
         # Key bind
         root.bind("<Return>", partial(get_places, self))
 
-    # Returns the latitude and longitude based on the object address
-    def get_lati_longi(self):
-        getaddress = str(self.name_address.get())
-        geolocator = Nominatim(user_agent="closestpointscs50p")
-        # Invalid location
-        try:
-            location = geolocator.geocode(getaddress)
-            self.lati_longi = f"{location.latitude},{location.longitude}"
-        except AttributeError as Error:
-            self.error_label.set("Invalid location.")
-        return self.lati_longi
-
-    # Save the search result to a new txt file
-    def output_to_file(self, event=None):
-        output = self.output_label.get()
-        # Error when saving output
-        try:
-            with open(str(uuid.uuid4()) + ".txt", "w", encoding="utf-8") as file:
-                file.write(output)
-        except IOError:
-            self.error_label.set("Error: Unable to save file.")
-
 
 # Does an api request based on the object attributes, calls process_json to return the formatted output
 def get_places(self, event=None):
-    self.error_label.set("") # Clear the error label before each search
-    location = self.get_lati_longi()
+    self.error_label.set("")  # Clear the error label before each search
+    location = get_lati_longi(self)
     keyword = self.type_establishment.get()
 
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -113,7 +95,7 @@ def get_places(self, event=None):
         "location": location,
         "rankby": "distance",
         "keyword": keyword,
-        "key": API_KEY, 
+        "key": API_KEY,
     }
     # ConnectionError/Timeout/TooManyRedirects
     try:
@@ -180,6 +162,30 @@ def calc_distance(user_location, place_location):
     else:
         distance = f"{distance:.1f}km"
     return distance
+
+
+# Returns the latitude and longitude based on the object address
+def get_lati_longi(self):
+    getaddress = str(self.name_address.get())
+    geolocator = Nominatim(user_agent="closestpointscs50p")
+    # Invalid location
+    try:
+        location = geolocator.geocode(getaddress)
+        self.lati_longi = f"{location.latitude},{location.longitude}"
+    except AttributeError as Error:
+        self.error_label.set("Invalid location.")
+    return self.lati_longi
+
+
+# Save the search result to a new txt file
+def output_to_file(self, event=None):
+    output = self.output_label.get()
+    # Error when saving output
+    try:
+        with open(str(uuid.uuid4()) + ".txt", "w", encoding="utf-8") as file:
+            file.write(output)
+    except IOError:
+        self.error_label.set("Error: Unable to save file.")
 
 
 root = Tk()
