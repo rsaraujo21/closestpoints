@@ -1,18 +1,20 @@
-from unittest.mock import Mock
-from project import get_places
+from tkinter import *
+from project import DisplayWindow, get_places
+from unittest.mock import patch
 
 
-def test_get_places():
-    test = Mock()
+def test_get_places_correct():
+    root = Tk()
+    root.withdraw()
+    test = DisplayWindow(root)
     test.name_address.set("harvard square")
     test.type_establishment.set("restaurant")
-
     get_places(test)
+    root.update()
+    assert test.name_address.get() == ""
+    assert test.type_establishment.get() == ""
+    assert test.output_label.get() != ""
+    assert test.error_label.get() == ""
+    root.destroy()
 
-    assert test.name_address.set.call_count == 2
-    test.name_address.set.assert_any_call("harvard square")
-    test.name_address.set.assert_any_call("")
 
-    assert test.type_establishment.set.call_count == 2
-    test.type_establishment.set.assert_any_call("restaurant")
-    test.type_establishment.set.assert_any_call("")
