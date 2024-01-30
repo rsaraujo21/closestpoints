@@ -98,6 +98,7 @@ def places_api_call(location, keyword, self):
         response = requests.get(url, params=params)
     except requests.exceptions.RequestException as Error:
         self.error_label.set("Error: Failed API request.")
+        response = {"results": []}
 
     return response
 
