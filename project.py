@@ -84,12 +84,8 @@ class DisplayWindow:
         root.bind("<Return>", partial(get_places, self))
 
 
-# Does an api request based on the object attributes, calls process_json to return the formatted output
-def get_places(self, event=None):
-    self.error_label.set("")  # Clear the error label before each search
-    location = get_lati_longi(self)
-    keyword = self.type_establishment.get()
-
+# Does an api call to google places api, returns the json response
+def places_api_call(location, keyword, self):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
         "location": location,
@@ -103,6 +99,16 @@ def get_places(self, event=None):
     except requests.exceptions.RequestException as Error:
         self.error_label.set("Error: Failed API request.")
 
+    return response
+
+
+# Calls places_api_call to get the json response, calls process_json to return the formatted output
+def get_places(self, event=None):
+    self.error_label.set("")  # Clear the error label before each search
+    location = get_lati_longi(self)
+    keyword = self.type_establishment.get()
+
+    response = places_api_call(location, keyword, self)
     # API request succeed but no results found
     try:
         places = response.json()["results"]
@@ -186,6 +192,7 @@ def output_to_file(self, event=None):
             file.write(output)
     except IOError:
         self.error_label.set("Error: Unable to save file.")
+
 
 if __name__ == "__main__":
     root = Tk()
