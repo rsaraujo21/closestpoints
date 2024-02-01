@@ -122,3 +122,19 @@ def test_process_json(mock_calc_distance):
     assert mock_calc_distance.call_count == 2
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "1,1")
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "2,2")
+
+
+def test_calc_distance():
+    # meters
+    user_location = "42.37365,-71.11896"
+    place_location = "42.37854,-71.11518"
+    expected_return_value = "626m"
+    return_value = calc_distance(user_location, place_location)
+    assert return_value == expected_return_value
+    # kilometers
+    user_location2 = "42.37365,-71.11896"
+    place_location2 = "40.7505085,-73.9960136"
+    expected_return_value2 = "299.8km"
+    return_value2 = calc_distance(user_location2, place_location2)
+    assert return_value2 == expected_return_value2
+
