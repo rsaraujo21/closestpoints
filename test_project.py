@@ -123,7 +123,7 @@ def test_process_json(mock_calc_distance):
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "1,1")
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "2,2")
 
-
+# calc_distance tests
 def test_calc_distance():
     # meters
     user_location = "42.37365,-71.11896"
@@ -137,4 +137,33 @@ def test_calc_distance():
     expected_return_value2 = "299.8km"
     return_value2 = calc_distance(user_location2, place_location2)
     assert return_value2 == expected_return_value2
+
+
+# get_lati_longi tests
+def test_get_lati_longi():
+    mock_gui = MagicMock()
+    mock_gui.name_address.get.return_value = "harvard square"
+    return_value = get_lati_longi(mock_gui)
+    expected_return_value = "42.3734734,-71.1189431"
+
+    assert return_value == expected_return_value
+    mock_gui.name_address.get.assert_called_once()
+    
+def test_get_lati_longi_error():
+    mock_gui = MagicMock()
+    mock_gui.name_address.get.return_value = "FKAJDFLÇAKFJLADJFLAKDFJALFJLADKFJALDF"
+    get_lati_longi(mock_gui)
+    
+    mock_gui.name_address.get.assert_called_once()
+    mock_gui.error_label.set.assert_called_once_with("Invalid location.")
+
+# output_to_file tests
+def test_output_to_file():
+    ...
+
+
+
+
+    
+
 
