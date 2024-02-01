@@ -121,8 +121,8 @@ def get_places(self, event=None):
     places = places[:10]  # Limits the output to 10 places from 20
     places = process_json(
         self, places
-    )  # Calls the process_json function to format the output
-    self.output_label.set(places)  # Set the output in the textvariable label
+    )  # Format the output(tabulate), returns tabulate data[0], raw data[1]
+    self.output_label.set(places[0])  # Set the output in the textvariable label
     self.name_address.set("")
     self.type_establishment.set("")
 
@@ -149,7 +149,7 @@ def process_json(self, placesjson):
 
         list_places.append(
             {
-                "Name": place.get("name", "Not Available"),
+                "Name": place.get("name", "Not Available")[:50],
                 "Status": status,
                 "Rating": place.get("rating", "Not Available"),
                 "User Ratings": place.get("user_ratings_total", "Not Available"),
@@ -157,8 +157,8 @@ def process_json(self, placesjson):
                 "Address": place.get("vicinity", "Not Available"),
             }
         )
-    # Format the list of dicts/places in a table
-    return tabulate(list_places, headers="keys", tablefmt="fancy_grid")
+    # Tabulate the list of places, return tabulated list to output, and the list to test purposes
+    return (tabulate(list_places, headers="keys", tablefmt="fancy_grid"), list_places)
 
 
 # Uses geopy/great_circle to get the (rough)distance between two points
