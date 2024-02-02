@@ -1,14 +1,15 @@
 import os
 import requests
 from dotenv import load_dotenv
+from unittest.mock import patch, MagicMock, ANY
 from project import (
     get_places,
     get_lati_longi,
     places_api_call,
     process_json,
     calc_distance,
+    output_to_file,
 )
-from unittest.mock import patch, MagicMock
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -123,6 +124,7 @@ def test_process_json(mock_calc_distance):
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "1,1")
     mock_calc_distance.assert_any_call(mock_gui.lati_longi, "2,2")
 
+
 # calc_distance tests
 def test_calc_distance():
     # meters
@@ -148,22 +150,32 @@ def test_get_lati_longi():
 
     assert return_value == expected_return_value
     mock_gui.name_address.get.assert_called_once()
-    
+
+
 def test_get_lati_longi_error():
     mock_gui = MagicMock()
     mock_gui.name_address.get.return_value = "FKAJDFLÇAKFJLADJFLAKDFJALFJLADKFJALDF"
     get_lati_longi(mock_gui)
-    
+
     mock_gui.name_address.get.assert_called_once()
     mock_gui.error_label.set.assert_called_once_with("Invalid location.")
 
+
 # output_to_file tests
-def test_output_to_file():
-    ...
-
-
-
-
+@patch("builtins.open")
+def test_output_to_file(mock_open):
+    mock_gui = MagicMock()
+    mock_gui.output_label.get.return_value = "Test"
+    output_to_file(mock_gui)
     
+    mock_gui.output_label.get.assert_called_once()
+    mock_open.assert_called_once_with(ANY, "w", encoding="utf-8")
+    file = mock_open.return_value.__enter__.return_value
+    file.write.assert_called_once_with("Test")
 
-
+@patch("builtins.open")
+def test_output_to_file_error(mock_open):
+    mock_gui = MagicMock()
+    mock_open.side_effect = IOError
+    output_to_file(mock_gui)
+    mock_gui.error_label.set.assert_called_once_with("Error: Unable to save file.")
