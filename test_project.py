@@ -167,11 +167,12 @@ def test_output_to_file(mock_open):
     mock_gui = MagicMock()
     mock_gui.output_label.get.return_value = "Test"
     output_to_file(mock_gui)
-    
+
     mock_gui.output_label.get.assert_called_once()
     mock_open.assert_called_once_with(ANY, "w", encoding="utf-8")
     file = mock_open.return_value.__enter__.return_value
     file.write.assert_called_once_with("Test")
+
 
 @patch("builtins.open")
 def test_output_to_file_error(mock_open):
