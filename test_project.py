@@ -1,8 +1,11 @@
 import os
 import requests
+from tkinter import *
+from tkinter import ttk
 from dotenv import load_dotenv
 from unittest.mock import patch, MagicMock, ANY
 from project import (
+    DisplayWindow,
     get_places,
     get_lati_longi,
     places_api_call,
@@ -13,6 +16,33 @@ from project import (
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
+
+
+# tkinter gui initialization
+def test_display_window():
+    test_root = Tk()
+    test_gui = DisplayWindow(test_root)
+
+    # Test variables being created
+    assert isinstance(test_gui.name_address, StringVar)
+    assert isinstance(test_gui.type_establishment, StringVar)
+    assert isinstance(test_gui.output_label, StringVar)
+    assert isinstance(test_gui.error_label, StringVar)
+    assert test_gui.lati_longi == None
+
+    # Test mainframe and widgets being created
+    assert "!frame" in test_root.children
+    assert isinstance(test_root.children["!frame"], ttk.Frame)
+    mainframe_widgets = test_root.children["!frame"].children
+    labels = sum(isinstance(child, ttk.Label) for child in mainframe_widgets.values())
+    assert labels == 5
+    entries = sum(isinstance(child, ttk.Entry) for child in mainframe_widgets.values())
+    assert entries == 2
+    buttons = sum(isinstance(child, ttk.Button) for child in mainframe_widgets.values())
+    assert buttons == 2
+
+    # keybinds are being created
+    assert "<Key-Return>" in test_root.bind()
 
 
 # places_api_call tests
@@ -67,6 +97,7 @@ def test_get_places(mock_json, mock_api, mock_latlong):
     assert (
         mock_gui.type_establishment.get.call_count == 2
     )  # One in get_places, one in mock_api assertion
+    
     # Clear textvariables
     mock_gui.type_establishment.set.assert_called_once_with("")
     mock_gui.name_address.set.assert_called_once_with("")

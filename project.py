@@ -84,6 +84,12 @@ class DisplayWindow:
         root.bind("<Return>", partial(get_places, self))
 
 
+def main():
+    root = Tk()
+    DisplayWindow(root)
+    root.mainloop()
+
+
 # Does an api call to google places api, returns the json response
 def places_api_call(location, keyword, self):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -196,6 +202,4 @@ def output_to_file(self, event=None):
 
 
 if __name__ == "__main__":
-    root = Tk()
-    DisplayWindow(root)
-    root.mainloop()
+    main()
