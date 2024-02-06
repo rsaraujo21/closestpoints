@@ -3,3 +3,6 @@ __pycache__
 .pytest_cache
 .coverage
 copyproject.py
+dist
+build/project
+project.spec

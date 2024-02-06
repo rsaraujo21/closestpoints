@@ -40,7 +40,7 @@ class DisplayWindow:
         loc_label.grid(column=1, row=1, sticky=(W, E))
 
         type_label = ttk.Label(
-            mainframe, text="Type of establishment: ", font=("Consolas", 10)
+            mainframe, text="Keyword: ", font=("Consolas", 10)
         )
         type_label.grid(column=1, row=2, sticky=(W, E))
 
