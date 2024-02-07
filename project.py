@@ -1,3 +1,11 @@
+"""
+Closest Points
+Renan Silva Araujo
+rsaraujo21
+Santa Catarina, Brazil
+07/02/2024
+
+"""
 import os
 import requests
 import json
