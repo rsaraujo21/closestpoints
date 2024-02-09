@@ -5,7 +5,7 @@ HarvardX CS50P, CS50's Introduction to Programming with Python
 
 _Python version 3.12.1_
 
-##  Video Demo:  <URL HERE>
+##  Video Demo:  https://youtu.be/ttBk_kjsFDU
 ##  Description:
  Closest points is a simple project designed to facilitate the search for nearby places based on a given location and keyword. Whether you are looking for a specific type of establishment like a restaurant or cafe, or general landmarks within your location, this project simplifies the search and gives you the necessary information to make an informed choice.
 ## Key features:
