@@ -20,6 +20,7 @@ _Python version 3.12.1_
 - python-dotenv==1.0.1
 - requests==2.31.0
 - tabulate==0.9.0
+- Google Places API Key
 ## Setup:
 1. Clone this repository:
 ```
