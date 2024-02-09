@@ -67,3 +67,5 @@ pytest test_project.py
 - Integrating multiple libraries to perform various functionalities.
 - Writing unit tests with unittest.mock to isolate functions and simulate external dependencies.
 - Using patch, MagicMock, and other mocking techniques to test individual functions in isolation.
+
+### ![certificate](CS50P.png)
